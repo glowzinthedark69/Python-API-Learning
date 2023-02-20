@@ -1,5 +1,5 @@
 import requests
 
-api_url = "https://jsonplaceholder.typicode.com/todos/1"
+api_url = "https://api.restful-api.dev/objects"
 response = requests.get(api_url)
-response.json()
+print(response.json())
