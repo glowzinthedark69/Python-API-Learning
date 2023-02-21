@@ -16,6 +16,7 @@ def test_2():
     response_body = response.json()
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "application/json"
+    print(response_body)
 
 
 def test_3():
