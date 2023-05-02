@@ -32,8 +32,8 @@ def test_3():
         }
     }
     postObject = requests.post(url, json=newObject)
-    responseBody = postObject.json()
-    print(responseBody)
+    response_body = postObject.json()
+    print(response_body)
 
 
 def test_4():
