@@ -3,12 +3,15 @@ import json
 
 
 def test_1():
-    response = requests.get("http://api.zippopotam.us/us/80602")
+    response = requests.get("https://api.restful-api.dev/objects/1")
     response_body = response.json()
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "application/json"
-    assert response_body["places"][0]["place name"] == "Brighton"
-    assert len(response_body["places"]) == 1
+    assert response_body["id"] == "1"
+    assert response_body["name"] == "Google Pixel 6 Pro"
+    assert response_body["data"]["color"] == "Cloudy White"
+    assert response_body["data"]["capacity"] == "128 GB"
+    print(response_body)
 
 
 def test_2():
@@ -32,8 +35,8 @@ def test_3():
         }
     }
     postObject = requests.post(url, json=newObject)
-    responseBody = postObject.json()
-    print(responseBody)
+    response_body = postObject.json()
+    print(response_body)
 
 
 def test_4():
