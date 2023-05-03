@@ -1,18 +1,3 @@
-# import requests
-#
-# api_url = "https://api.restful-api.dev/objects"
-# response = requests.get(api_url)
-# print(response.json())
-
-# from flask import Flask
-#
-# app = Flask(__name__)
-#
-#
-# @app.route("/")
-# def hello_world():
-#     return "Hello, World!"
-
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
 import pandas as pd
