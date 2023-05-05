@@ -52,7 +52,7 @@ class Users(Resource):
                 'locations': [[]]
             })
             # add the newly provided values
-            data = data.append(new_data, ignore_index=True)
+            data = pd.concat([data, new_data], ignore_index=True)
             data.to_csv('users.csv', index=False)  # save back to CSV
             return {'data': data.to_dict()}, 200  # return data with 200 OK
 
@@ -141,7 +141,7 @@ class Locations(Resource):
                 'rating': [args['rating']]
             })
             # add the newly provided values
-            data = data.append(new_data, ignore_index=True)
+            data = pd.concat([data, new_data], ignore_index=True)
             data.to_csv('locations.csv', index=False)  # save back to CSV
             return {'data': data.to_dict()}, 200  # return data with 200 OK
 
