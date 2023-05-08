@@ -2,7 +2,11 @@ import requests
 import json
 
 
+<<<<<<< HEAD
 def test_1():
+=======
+def test_1_validate_object1_contents_GET():
+>>>>>>> newBranch
     response = requests.get("https://api.restful-api.dev/objects/1")
     response_body = response.json()
     assert response.status_code == 200
@@ -14,7 +18,7 @@ def test_1():
     print(response_body)
 
 
-def test_2():
+def test_2_validate_objects_returned_GetAll():
     response = requests.get("https://api.restful-api.dev/objects")
     response_body = response.json()
     assert response.status_code == 200
@@ -22,7 +26,7 @@ def test_2():
     print(response_body)
 
 
-def test_3():
+def test_3_validate_object_creation_POST():
     url = "https://api.restful-api.dev/objects"
     newObject = {
         "name": "Apple MacBook Pro 160",
@@ -31,16 +35,24 @@ def test_3():
             "price": 18499.99,
             "CPU model": "Intel Core i99",
             "Hard disk size": "100 TB",
-            "created by": "mkrahl1"
+            "created by": "mkrahl"
         }
     }
     postObject = requests.post(url, json=newObject)
     response_body = postObject.json()
+<<<<<<< HEAD
+=======
+    object_id = (response_body["id"])
+    print(object_id)
+    assert response_body["id"] == object_id
+    assert response_body["name"] == "Apple MacBook Pro 160"
+    assert response_body["data"]["price"] == 18499.99
+>>>>>>> newBranch
     print(response_body)
 
 
-def test_4():
-    response = requests.get("https://api.restful-api.dev/objects?id=ff808181866731b50186700f9678017d")
+def test_4_validate_object_contents_GET():
+    response = requests.get("https://api.restful-api.dev/objects?id=ff80818187dae5600187ddb9978f0150")
     response_body = response.json()
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "application/json"
