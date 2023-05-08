@@ -2,11 +2,7 @@ import requests
 import json
 
 
-<<<<<<< HEAD
-def test_1():
-=======
 def test_1_validate_object1_contents_GET():
->>>>>>> newBranch
     response = requests.get("https://api.restful-api.dev/objects/1")
     response_body = response.json()
     assert response.status_code == 200
@@ -40,14 +36,11 @@ def test_3_validate_object_creation_POST():
     }
     postObject = requests.post(url, json=newObject)
     response_body = postObject.json()
-<<<<<<< HEAD
-=======
     object_id = (response_body["id"])
     print(object_id)
     assert response_body["id"] == object_id
     assert response_body["name"] == "Apple MacBook Pro 160"
     assert response_body["data"]["price"] == 18499.99
->>>>>>> newBranch
     print(response_body)
 
 
