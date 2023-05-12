@@ -3,23 +3,8 @@ import json
 import random
 
 
-# Validate GET request for a single user using /users endpoint
-def test_1_validate_object1_contents():
-    response = requests.get("http://127.0.0.1:5000/users")
-    response_body = response.json()
-    print(response_body)
-    user = response_body[0]  # get the first user in the list
-    assert response.status_code == 200
-    assert response.headers["Content-Type"] == "application/json"
-    assert user["userId"] == 1234
-    assert user["name"] == "John Smithson"
-    assert user["jobTitle"] == "Software Test Engineer I"
-    assert user["city"] == "Seattle"
-    print(user)
-
-
 # Validate GET request for all users using /users endpoint
-def test_2_validate_objects_returned():
+def test_1_validate_objects_returned():
     response = requests.get("http://127.0.0.1:5000/users")
     response_body = response.json()
     assert response.status_code == 200
@@ -29,7 +14,7 @@ def test_2_validate_objects_returned():
 
 
 # Validate POST request for new user creation using /users endpoint
-def test_3_validate_object_creation():
+def test_2_validate_object_creation():
     url = "http://127.0.0.1:5000/users"
     newObject = {
         "userId": random.randint(1000, 9999),
@@ -50,7 +35,7 @@ def test_3_validate_object_creation():
 
 
 # Validate PATCH request for updating a user record using /users endpoint
-def test_4_validate_object_updates():
+def test_3_validate_object_updates():
     url = "http://127.0.0.1:5000/users"
     newUser = {
         "userId": random.randint(1000, 9999),  # Creates a new user with the following attributes

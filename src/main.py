@@ -7,7 +7,27 @@ users = []
 
 @app.route('/users', methods=['GET'])
 def get_users():
-    return jsonify(users)
+    name = request.args.get('name')
+    user_id = request.args.get('userId')
+    city = request.args.get('city')
+    country = request.args.get('country')
+    job_title = request.args.get('jobTitle')
+
+    filtered_users = users
+
+    if name is not None:
+        filtered_users = [user for user in filtered_users if name.lower() in user['name'].lower()]
+    if user_id is not None:
+        user_id = int(user_id)
+        filtered_users = [user for user in filtered_users if user['userId'] == user_id]
+    if city is not None:
+        filtered_users = [user for user in filtered_users if city.lower() in user['city'].lower()]
+    if country is not None:
+        filtered_users = [user for user in filtered_users if country.lower() in user['country'].lower()]
+    if job_title is not None:
+        filtered_users = [user for user in filtered_users if job_title.lower() in user['jobTitle'].lower()]
+
+    return jsonify(filtered_users)
 
 
 @app.route('/users/<int:user_id>', methods=['GET'])
