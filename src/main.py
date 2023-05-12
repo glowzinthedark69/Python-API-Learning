@@ -8,10 +8,13 @@ users = []
 @app.route('/users', methods=['GET'])
 def get_users():
     name = request.args.get('name')
-    user_id = request.args.get('userId')
+    user_id = request.args.get('userId', type=int)
     city = request.args.get('city')
     country = request.args.get('country')
     job_title = request.args.get('jobTitle')
+
+    if user_id is not None and user_id < 0:
+        return jsonify({'Error': 'userId cannot be a negative number'}), 400
 
     filtered_users = users
 
