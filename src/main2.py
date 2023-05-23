@@ -1,242 +1,90 @@
-# import requests
-#
-# api_url = "https://api.restful-api.dev/objects"
-# response = requests.get(api_url)
-# print(response.json())
+from typing import List, Optional
 
-# from flask import Flask
-#
-# app = Flask(__name__)
-#
-#
-# @app.route("/")
-# def hello_world():
-#     return "Hello, World!"
+from fastapi import FastAPI, HTTPException, Body, Path
+from pydantic import BaseModel
 
-from flask import Flask
-from flask_restful import Resource, Api, reqparse
-import pandas as pd
-import ast
-from flask import request
+app = FastAPI()
 
-app = Flask(__name__)
-api = Api(app)
+users = []
 
 
-class Users(Resource):
-    def get(self):
-        data = pd.read_csv('users.csv')  # read local CSV
-        data = data.to_dict()  # convert dataframe to dict
-        return {'data': data}, 200  # return data and 200 OK
-
-    def post(self):
-        parser = reqparse.RequestParser()  # initialize
-        parser.add_argument('userId', required=True)  # add args
-        parser.add_argument('name', required=True)
-        parser.add_argument('city', required=True)
-        args = parser.parse_args()  # parse arguments to dictionary
-
-        # read our CSV
-        data = pd.read_csv('users.csv')
-
-        if args['userId'] in list(data['userId']):
-            return {
-                'Error message': f"'{args['userId']}' already exists. Please verify the userId."
-            }, 409
-        else:
-            # create new dataframe containing new values
-            new_data = pd.DataFrame({
-                'userId': [args['userId']],
-                'name': [args['name']],
-                'city': [args['city']],
-                'locations': [[]]
-            })
-            # add the newly provided values
-            data = pd.concat([data, new_data], ignore_index=True)
-            data.to_csv('users.csv', index=False)  # save back to CSV
-            return {'data': data.to_dict()}, 200  # return data with 200 OK
-
-    def put(self):
-        parser = reqparse.RequestParser()  # initialize
-        parser.add_argument('userId', required=True)  # add args
-        parser.add_argument('location', required=True)
-        args = parser.parse_args()  # parse arguments to dictionary
-
-        # read our CSV
-        data = pd.read_csv('users.csv')
-
-        if args['userId'] in list(data['userId']):
-            # evaluate strings of lists to lists !!! never put something like this in prod
-            data['locations'] = data['locations'].apply(
-                lambda x: ast.literal_eval(x)
-            )
-            # select our user
-            user_data = data[data['userId'] == args['userId']]
-
-            # update user's locations
-            user_data['locations'] = user_data['locations'].values[0] \
-                .append(args['location'])
-
-            # save back to CSV
-            data.to_csv('users.csv', index=False)
-            # return data and 200 OK
-            return {'data': data.to_dict()}, 200
-
-        else:
-            # otherwise the userId does not exist
-            return {
-                'message': f"'{args['userId']}' user not found."
-            }, 404
-
-    def patch(self):
-        parser = reqparse.RequestParser()  # initialize
-        parser.add_argument('userId', required=True)  # add args
-        parser.add_argument('name', store_missing=False)
-        parser.add_argument('city', store_missing=False)
-        args = parser.parse_args()  # parse arguments to dictionary
-
-        # read our CSV
-        data = pd.read_csv('users.csv')
-
-        if args['userId'] in list(data['userId']):
-            # select our user
-            user_data = data[data['userId'] == args['userId']]
-
-            # update user's name and/or city
-            if 'name' in args:
-                user_data['name'] = args['name']
-            if 'city' in args:
-                user_data['city'] = args['city']
-
-            # save back to CSV
-            data.to_csv('users.csv', index=False)
-            # return data and 200 OK
-            return {'data': data.to_dict()}, 200
-
-        else:
-            # otherwise the userId does not exist
-            return {
-                'message': f"'{args['userId']}' user not found."
-            }, 404
-
-    def delete(self):
-        parser = reqparse.RequestParser()  # initialize
-        parser.add_argument('userId', required=True)  # add userId arg
-        args = parser.parse_args()  # parse arguments to dictionary
-
-        # read our CSV
-        data = pd.read_csv('users.csv')
-
-        if args['userId'] in list(data['userId']):
-            # remove data entry matching given userId
-            data = data[data['userId'] != args['userId']]
-
-            # save back to CSV
-            data.to_csv('users.csv', index=False)
-            # return data and 200 OK
-            return {'data': data.to_dict()}, 200
-        else:
-            # otherwise we return 404 because userId does not exist
-            return {
-                'message': f"'{args['userId']}' user not found."
-            }, 404
+class User(BaseModel):
+    userId: int
+    name: str
+    city: str
+    country: str
+    jobTitle: str
 
 
-class Locations(Resource):
-    def get(self):
-        data = pd.read_csv('locations.csv')  # read local CSV
-        return {'data': data.to_dict()}, 200  # return data dict and 200 OK
+@app.get("/users", response_model=List[User])
+def get_users(name: Optional[str] = None, userId: Optional[int] = None, city: Optional[str] = None,
+              country: Optional[str] = None, jobTitle: Optional[str] = None):
+    if userId is not None and userId < 0:
+        raise HTTPException(status_code=400, detail="userId cannot be a negative number")
 
-    def post(self):
-        parser = reqparse.RequestParser()  # initialize parser
-        parser.add_argument('locationId', required=True, type=int)  # add args
-        parser.add_argument('name', required=True)
-        parser.add_argument('rating', required=True)
-        args = parser.parse_args()  # parse arguments to dictionary
+    filtered_users = users
 
-        # read our CSV
-        data = pd.read_csv('locations.csv')
+    if name is not None:
+        filtered_users = [user for user in filtered_users if name.lower() in user.name.lower()]
+    if userId is not None:
+        filtered_users = [user for user in filtered_users if user.userId == userId]
+    if city is not None:
+        filtered_users = [user for user in filtered_users if city.lower() in user.city.lower()]
+    if country is not None:
+        filtered_users = [user for user in filtered_users if country.lower() in user.country.lower()]
+    if jobTitle is not None:
+        filtered_users = [user for user in filtered_users if jobTitle.lower() in user.jobTitle.lower()]
 
-        # check if location already exists
-        if args['locationId'] in list(data['locationId']):
-            # if locationId already exists, return 401 unauthorized
-            return {
-                'Error message': f"'{args['locationId']}' already exists. Please verify the location is unique."
-            }, 409
-        else:
-            # otherwise, we can add the new location record
-            # create new dataframe containing new values
-            new_data = pd.DataFrame({
-                'locationId': [args['locationId']],
-                'name': [args['name']],
-                'rating': [args['rating']]
-            })
-            # add the newly provided values
-            data = pd.concat([data, new_data], ignore_index=True)
-            data.to_csv('locations.csv', index=False)  # save back to CSV
-            return {'data': data.to_dict()}, 200  # return data with 200 OK
-
-    def patch(self):
-        parser = reqparse.RequestParser()  # initialize parser
-        parser.add_argument('locationId', required=True, type=int)  # add args
-        parser.add_argument('name', store_missing=False)  # name/rating are optional
-        parser.add_argument('rating', store_missing=False)
-        args = parser.parse_args()  # parse arguments to dictionary
-
-        # read our CSV
-        data = pd.read_csv('locations.csv')
-
-        # check that the location exists
-        if args['locationId'] in list(data['locationId']):
-            # if it exists, we can update it, first we get user row
-            user_data = data[data['locationId'] == args['locationId']]
-
-            # if name has been provided, we update name
-            if 'name' in args:
-                user_data['name'] = args['name']
-            # if rating has been provided, we update rating
-            if 'rating' in args:
-                user_data['rating'] = args['rating']
-
-            # update data
-            data[data['locationId'] == args['locationId']] = user_data
-            # now save updated data
-            data.to_csv('locations.csv', index=False)
-            # return data and 200 OK
-            return {'data': data.to_dict()}, 200
-
-        else:
-            # otherwise we return 404 not found
-            return {
-                'Error message': f"'{args['locationId']}' location does not exist. Verify the correct location"
-            }, 404
-
-    def delete(self):
-        parser = reqparse.RequestParser()  # initialize parser
-        parser.add_argument('locationId', required=True, type=int)  # add locationId arg
-        args = parser.parse_args()  # parse arguments to dictionary
-
-        # read our CSV
-        data = pd.read_csv('locations.csv')
-
-        # check that the locationId exists
-        if args['locationId'] in list(data['locationId']):
-            # if it exists, we delete it
-            data = data[data['locationId'] != args['locationId']]
-            # save the data
-            data.to_csv('locations.csv', index=False)
-            # return data and 200 OK
-            return {'data': data.to_dict()}, 200
-
-        else:
-            # otherwise we return 404 not found
-            return {
-                'message': f"'{args['locationId']}' location does not exist."
-            }
+    return filtered_users
 
 
-api.add_resource(Users, '/users')  # add endpoints
-api.add_resource(Locations, '/locations')
+@app.get("/users/{user_id}", response_model=User)
+def get_user(user_id: int = Path(..., ge=0)):
+    for user in users:
+        if user.userId == user_id:
+            return user
+    raise HTTPException(status_code=404, detail="User not found")
 
-if __name__ == '__main__':
-    app.run()  # run our Flask app
+
+@app.post("/users", response_model=User)
+def create_user(user: User = Body(...)):
+    for u in users:
+        if u.userId == user.userId:
+            raise HTTPException(status_code=400, detail="This user already exists. Please verify information.")
+    users.append(user)
+    return user
+
+
+@app.patch("/users/{user_id}", response_model=User)
+def patch_user(user_id: int, user: User = Body(...)):
+    if user.userId != user_id:
+        raise HTTPException(status_code=400, detail="User ID in request body does not match URL parameter")
+    for u in users:
+        if u.userId == user_id:
+            u.name = user.name if user.name else u.name
+            u.city = user.city if user.city else u.city
+            u.country = user.country if user.country else u.country
+            u.jobTitle = user.jobTitle if user.jobTitle else u.jobTitle
+            return u
+    raise HTTPException(status_code=404, detail="User not found")
+
+
+@app.put("/users/{user_id}", response_model=User)
+def update_user(user_id: int, user: User = Body(...)):
+    for u in users:
+        if u.userId == user_id:
+            u.name = user.name
+            u.city = user.city
+            u.country = user.country
+            u.jobTitle = user.jobTitle
+            return u
+    raise HTTPException(status_code=404, detail="User not found")
+
+
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int):
+    for user in users:
+        if user.userId == user_id:
+            users.remove(user)
+            return {"message": "User has been successfully deleted."}
+    raise HTTPException(status_code=404, detail="User not found")
