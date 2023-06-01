@@ -9,11 +9,11 @@ users = []
 
 
 class User(BaseModel):
-    userId: int
-    name: str
-    city: str
-    country: str
-    jobTitle: str
+    userId: Optional[int] = None
+    name: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
+    jobTitle: Optional[str] = None
 
 
 @app.get("/users", response_model=List[User])
@@ -46,7 +46,7 @@ def get_user(user_id: int = Path(..., ge=0)):
     raise HTTPException(status_code=404, detail="User not found")
 
 
-@app.post("/users", response_model=User)
+@app.post("/users", response_model=User, status_code=201)
 def create_user(user: User = Body(...)):
     for u in users:
         if u.userId == user.userId:
