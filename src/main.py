@@ -1,106 +1,90 @@
-from flask import Flask, request, jsonify
+from typing import List, Optional
 
-app = Flask(__name__)
+from fastapi import FastAPI, HTTPException, Body, Path
+from pydantic import BaseModel
+
+app = FastAPI()
 
 users = []
 
 
-@app.route('/users', methods=['GET'])
-def get_users():
-    name = request.args.get('name')
-    user_id = request.args.get('userId', type=int)
-    city = request.args.get('city')
-    country = request.args.get('country')
-    job_title = request.args.get('jobTitle')
+class User(BaseModel):
+    userId: Optional[int] = None
+    name: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
+    jobTitle: Optional[str] = None
 
-    if user_id is not None and user_id < 0:
-        return jsonify({'Error': 'userId cannot be a negative number'}), 400
+
+@app.get("/users", response_model=List[User])
+def get_users(name: Optional[str] = None, userId: Optional[int] = None, city: Optional[str] = None,
+              country: Optional[str] = None, jobTitle: Optional[str] = None):
+    if userId is not None and userId < 0:
+        raise HTTPException(status_code=400, detail="userId cannot be a negative number")
 
     filtered_users = users
 
     if name is not None:
-        filtered_users = [user for user in filtered_users if name.lower() in user['name'].lower()]
-    if user_id is not None:
-        user_id = int(user_id)
-        filtered_users = [user for user in filtered_users if user['userId'] == user_id]
+        filtered_users = [user for user in filtered_users if name.lower() in user.name.lower()]
+    if userId is not None:
+        filtered_users = [user for user in filtered_users if user.userId == userId]
     if city is not None:
-        filtered_users = [user for user in filtered_users if city.lower() in user['city'].lower()]
+        filtered_users = [user for user in filtered_users if city.lower() in user.city.lower()]
     if country is not None:
-        filtered_users = [user for user in filtered_users if country.lower() in user['country'].lower()]
-    if job_title is not None:
-        filtered_users = [user for user in filtered_users if job_title.lower() in user['jobTitle'].lower()]
+        filtered_users = [user for user in filtered_users if country.lower() in user.country.lower()]
+    if jobTitle is not None:
+        filtered_users = [user for user in filtered_users if jobTitle.lower() in user.jobTitle.lower()]
 
-    return jsonify(filtered_users)
+    return filtered_users
 
 
-@app.route('/users/<int:user_id>', methods=['GET'])
-def get_user(user_id):
+@app.get("/users/{user_id}", response_model=User)
+def get_user(user_id: int = Path(..., ge=0)):
     for user in users:
-        if user['userId'] == user_id:
-            return jsonify(user)
-    return jsonify({'message': 'User not found'}), 404
+        if user.userId == user_id:
+            return user
+    raise HTTPException(status_code=404, detail="User not found")
 
 
-@app.route('/users', methods=['POST'])
-def create_user():
-    data = request.get_json()
-    user_id = data['userId']
-    # check if user with the same user_id already exists
-    for user in users:
-        if user['userId'] == int(user_id):
-            return jsonify({'Error message': 'This user already exists. Please verify information.'}), 400
-    # create new user
-    user = {
-        'name': data['name'],
-        'userId': user_id,
-        'city': data['city'],
-        'country': data['country'],
-        'jobTitle': data['jobTitle']
-    }
+@app.post("/users", response_model=User, status_code=201)
+def create_user(user: User = Body(...)):
+    for u in users:
+        if u.userId == user.userId:
+            raise HTTPException(status_code=400, detail="This user already exists. Please verify information.")
     users.append(user)
-    return jsonify(user), 201
+    return user
 
 
-@app.route('/users/<int:user_id>', methods=['PATCH'])
-def patch_user(user_id):
-    data = request.get_json()
-    if data['userId'] != user_id:
-        return jsonify({'message': 'User ID in request body does not match URL parameter'}), 400
+@app.patch("/users/{user_id}", response_model=User)
+def patch_user(user_id: int, user: User = Body(...)):
+    if user.userId != user_id:
+        raise HTTPException(status_code=400, detail="User ID in request body does not match URL parameter")
+    for u in users:
+        if u.userId == user_id:
+            u.name = user.name if user.name else u.name
+            u.city = user.city if user.city else u.city
+            u.country = user.country if user.country else u.country
+            u.jobTitle = user.jobTitle if user.jobTitle else u.jobTitle
+            return u
+    raise HTTPException(status_code=404, detail="User not found")
+
+
+@app.put("/users/{user_id}", response_model=User)
+def update_user(user_id: int, user: User = Body(...)):
+    for u in users:
+        if u.userId == user_id:
+            u.name = user.name
+            u.city = user.city
+            u.country = user.country
+            u.jobTitle = user.jobTitle
+            return u
+    raise HTTPException(status_code=404, detail="User not found")
+
+
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int):
     for user in users:
-        if user['userId'] == user_id:
-            if 'name' in data:
-                user['name'] = data['name']
-            if 'city' in data:
-                user['city'] = data['city']
-            if 'country' in data:
-                user['country'] = data['country']
-            if 'jobTitle' in data:
-                user['jobTitle'] = data['jobTitle']
-            return jsonify(user)
-    return jsonify({'message': 'User not found'}), 404
-
-
-@app.route('/users/<int:user_id>', methods=['PUT'])
-def update_user(user_id):
-    data = request.get_json()
-    for user in users:
-        if user['userId'] == user_id:
-            user['name'] = data['name']
-            user['city'] = data['city']
-            user['country'] = data['country']
-            user['jobTitle'] = data['jobTitle']
-            return jsonify(user)
-    return jsonify({'message': 'User not found'}), 404
-
-
-@app.route('/users/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    for user in users:
-        if user['userId'] == user_id:
+        if user.userId == user_id:
             users.remove(user)
-            return jsonify({'message': 'User has been successfully deleted.'})
-    return jsonify({'message': 'User not found'}), 404
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+            return {"message": "User has been successfully deleted."}
+    raise HTTPException(status_code=404, detail="User not found")
