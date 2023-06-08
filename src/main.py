@@ -1,9 +1,8 @@
 from typing import List, Optional
-
+from app import app
 from fastapi import FastAPI, HTTPException, Body, Path
 from pydantic import BaseModel
-
-app = FastAPI()
+import locations
 
 users = []
 
