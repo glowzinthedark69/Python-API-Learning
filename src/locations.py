@@ -41,6 +41,18 @@ def update_location(location_id: int, location: Location = Body(...)):
     raise HTTPException(status_code=404, detail="Location not found")
 
 
+@app.patch("/locations/{location_id}", response_model=Location)
+def patch_location(location_id: int, location: Location = Body(...)):
+    for l in locations:
+        if l.id == location_id:
+            if location.city is not None:
+                l.city = location.city
+            if location.country is not None:
+                l.country = location.country
+            return l
+    raise HTTPException(status_code=404, detail="Location not found")
+
+
 @app.delete("/locations/{location_id}")
 def delete_location(location_id: int):
     for location in locations:
