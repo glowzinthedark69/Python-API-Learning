@@ -48,6 +48,7 @@ def test_3_validate_object_updates_patch():
         "country": "United States AUTOMATED (PATCH)",
         "id": location_id  # userId must be included in the JSON payload which is why we captured it above
     }
+    assert response_body["id"] == location_id
     patchObject = requests.patch(url + f'/{location_id}', json=updatedUser)  # PATCH operation for updated user info
     updated_response_body = patchObject.json()
     assert updated_response_body["id"] == location_id  # Validate id matches as expected
