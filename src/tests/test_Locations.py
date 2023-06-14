@@ -18,8 +18,8 @@ def test_2_validate_object_creation():
     url = "http://127.0.0.1:8000/locations"
     newObject = {
         "id": random.randint(10000, 99999),  # Creates a new user with the following attributes
-        "city": "Denver AUTOMATED",
-        "country": "United States AUTOMATED",
+        "city": "Denver AUTOMATED (POST)",
+        "country": "United States AUTOMATED (POST)",
     }
     postObject = requests.post(url, json=newObject)
     response_body = postObject.json()
@@ -27,13 +27,13 @@ def test_2_validate_object_creation():
     new_location_id = response_body["id"]
     print(new_location_id)
     assert response_body["id"] == new_location_id
-    assert response_body["city"] == "Denver AUTOMATED"
-    assert response_body["country"] == "United States AUTOMATED"
+    assert response_body["city"] == "Denver AUTOMATED (POST)"
+    assert response_body["country"] == "United States AUTOMATED (POST)"
     print(response_body)
 
 
 # Validate PATCH request for updating a user record using /users endpoint
-def test_3_validate_object_updates():
+def test_3_validate_object_updates_patch():
     url = "http://127.0.0.1:8000/locations"
     newUser = {
         "id": random.randint(10000, 99999),  # Creates a user with the following attributes
@@ -57,7 +57,7 @@ def test_3_validate_object_updates():
 
 
 # Validate PATCH request for updating a user record using /users endpoint
-def test_4_validate_object_updates():
+def test_4_validate_object_updates_put():
     url = "http://127.0.0.1:8000/locations"
     newUser = {
         "id": random.randint(10000, 99999),  # Creates a user with the following attributes
