@@ -18,12 +18,12 @@ class User(BaseModel):
 @app.get("/users", response_model=List[User])
 def get_users(
     name: Optional[str] = None,
-    userId: Optional[int] = None,
+    user_id: Optional[int] = None,
     city: Optional[str] = None,
     country: Optional[str] = None,
-    jobTitle: Optional[str] = None,
+    job_title: Optional[str] = None,
 ):
-    if userId is not None and userId < 0:
+    if user_id is not None and user_id < 0:
         raise HTTPException(
             status_code=400, detail="userId cannot be a negative number"
         )
@@ -34,8 +34,8 @@ def get_users(
         filtered_users = [
             user for user in filtered_users if name.lower() in user.name.lower()
         ]
-    if userId is not None:
-        filtered_users = [user for user in filtered_users if user.userId == userId]
+    if user_id is not None:
+        filtered_users = [user for user in filtered_users if user.userId == user_id]
     if city is not None:
         filtered_users = [
             user for user in filtered_users if city.lower() in user.city.lower()
@@ -44,9 +44,9 @@ def get_users(
         filtered_users = [
             user for user in filtered_users if country.lower() in user.country.lower()
         ]
-    if jobTitle is not None:
+    if job_title is not None:
         filtered_users = [
-            user for user in filtered_users if jobTitle.lower() in user.jobTitle.lower()
+            user for user in filtered_users if job_title.lower() in user.jobTitle.lower()
         ]
 
     return filtered_users
