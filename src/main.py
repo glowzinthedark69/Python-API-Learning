@@ -35,7 +35,7 @@ def get_users(
             user for user in filtered_users if name.lower() in user.name.lower()
         ]
     if user_id is not None:
-        filtered_users = [user for user in filtered_users if user.userId == user_id]
+        filtered_users = [user for user in filtered_users if user.user_id == user_id]
     if city is not None:
         filtered_users = [
             user for user in filtered_users if city.lower() in user.city.lower()
@@ -46,7 +46,9 @@ def get_users(
         ]
     if job_title is not None:
         filtered_users = [
-            user for user in filtered_users if job_title.lower() in user.jobTitle.lower()
+            user
+            for user in filtered_users
+            if job_title.lower() in user.job_title.lower()
         ]
 
     return filtered_users
