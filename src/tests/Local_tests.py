@@ -21,7 +21,7 @@ def test_2_validate_object_creation():
         "name": "John Tester",
         "city": "Denver",
         "country": "United States",
-        "jobTitle": "Software Test Engineer III"
+        "jobTitle": "Software Test Engineer III",
     }
     postObject = requests.post(url, json=newObject)
     response_body = postObject.json()
@@ -38,23 +38,35 @@ def test_2_validate_object_creation():
 def test_3_validate_object_updates():
     url = "http://127.0.0.1:8000/users"
     newUser = {
-        "userId": random.randint(10000, 99999),  # Creates a new user with the following attributes
+        "userId": random.randint(
+            10000, 99999
+        ),  # Creates a new user with the following attributes
         "name": "John Tester",
         "city": "Denver",
         "country": "United States",
-        "jobTitle": "Software Test Engineer III"
+        "jobTitle": "Software Test Engineer III",
     }
-    postObject = requests.post(url, json=newUser)  # POST operation for creating the new user
+    postObject = requests.post(
+        url, json=newUser
+    )  # POST operation for creating the new user
     response_body = postObject.json()  # Converts the response into JSON
-    user_id = response_body["userId"]  # Assigns the userId to the new_user_id variable for later use
+    user_id = response_body[
+        "userId"
+    ]  # Assigns the userId to the new_user_id variable for later use
     updatedUser = {
         "name": "John Tester UPDATED",  # Updates the user with the following attributes
         "city": "Seattle",
-        "userId": user_id  # userId must be included in the JSON payload which is why we captured it above
+        "userId": user_id,  # userId must be included in the JSON payload which is why we captured it above
     }
-    patchObject = requests.patch(url + f'/{user_id}', json=updatedUser)  # PATCH operation for the updated user info
+    patchObject = requests.patch(
+        url + f"/{user_id}", json=updatedUser
+    )  # PATCH operation for the updated user info
     updated_response_body = patchObject.json()
     assert updated_response_body["userId"] == user_id
-    assert updated_response_body["name"] == "John Tester UPDATED"  # Validate that the name was successfully updated
-    assert updated_response_body["city"] == "Seattle"  # Validate that the city was successfully updated
+    assert (
+        updated_response_body["name"] == "John Tester UPDATED"
+    )  # Validate that the name was successfully updated
+    assert (
+        updated_response_body["city"] == "Seattle"
+    )  # Validate that the city was successfully updated
     print(updated_response_body)

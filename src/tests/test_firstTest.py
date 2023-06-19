@@ -31,12 +31,12 @@ def test_3_validate_object_creation_POST():
             "price": 18499.99,
             "CPU model": "Intel Core i99",
             "Hard disk size": "100 TB",
-            "created by": "mkrahl"
-        }
+            "created by": "mkrahl",
+        },
     }
     postObject = requests.post(url, json=newObject)
     response_body = postObject.json()
-    object_id = (response_body["id"])
+    object_id = response_body["id"]
     print(object_id)
     assert response_body["id"] == object_id
     assert response_body["name"] == "Apple MacBook Pro 160"
@@ -45,7 +45,9 @@ def test_3_validate_object_creation_POST():
 
 
 def test_4_validate_object_contents_GET():
-    response = requests.get("https://api.restful-api.dev/objects?id=ff80818187dae5600187ddb9978f0150")
+    response = requests.get(
+        "https://api.restful-api.dev/objects?id=ff80818187dae5600187ddb9978f0150"
+    )
     response_body = response.json()
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "application/json"
