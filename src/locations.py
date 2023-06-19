@@ -1,6 +1,7 @@
+import random
 from typing import List, Optional
 from fastapi import HTTPException, Body, Path
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from app import app
 
 locations = []
@@ -11,9 +12,16 @@ class Location(BaseModel):
     city: Optional[str] = None
     country: Optional[str] = None
 
+    @validator('city', 'country')
+    def check_name(cls, value):
+        if not value:
+            raise ValueError('city and country cannot be empty')
+        return value
+
 
 @app.post("/locations", response_model=Location, status_code=201)
 def create_location(location: Location = Body(...)):
+    location.id = random.randint(10000, 99999)  # generate a random 5-digit number
     locations.append(location)
     return location
 
