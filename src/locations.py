@@ -12,10 +12,10 @@ class Location(BaseModel):
     city: Optional[str] = None
     country: Optional[str] = None
 
-    @validator('city', 'country')
+    @validator("city", "country")
     def check_name(cls, value):
         if not value:
-            raise ValueError('city and country cannot be empty')
+            raise ValueError("city and country cannot be empty")
         return value
 
 
