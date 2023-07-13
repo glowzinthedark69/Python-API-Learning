@@ -27,8 +27,22 @@ def create_location(location: Location = Body(...)):
 
 
 @app.get("/locations", response_model=List[Location])
-def get_locations():
-    return locations
+def get_locations(
+    city: Optional[str] = None,
+    country: Optional[str] = None,
+):
+    filtered_locations = locations
+
+    if city is not None:
+        filtered_locations = [
+            location for location in filtered_locations if city.lower() in location.city.lower()
+        ]
+    if country is not None:
+        filtered_locations = [
+            location for location in filtered_locations if country.lower() in location.country.lower()
+        ]
+
+    return filtered_locations
 
 
 @app.get("/locations/{location_id}", response_model=Location)
