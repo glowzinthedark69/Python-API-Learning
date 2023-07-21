@@ -1,3 +1,4 @@
+import pytest
 import requests
 import json
 import random
@@ -64,9 +65,61 @@ def test_3_validate_object_updates():
     updated_response_body = patch_object.json()
     assert updated_response_body["userId"] == user_id
     assert (
-        updated_response_body["name"] == "John Tester UPDATED"
+            updated_response_body["name"] == "John Tester UPDATED"
     )  # Validate that the name was successfully updated
     assert (
-        updated_response_body["city"] == "Seattle"
+            updated_response_body["city"] == "Seattle"
     )  # Validate that the city was successfully updated
     print(updated_response_body)
+
+
+def test_sample_items():
+    try:
+        response = requests.get("http://127.0.0.1:8000/users")
+        response.raise_for_status()  # Raise exception if the request failed
+    except requests.RequestException as e:
+        pytest.fail(f"Request failed: {e}")
+
+    try:
+        response_body = response.json()
+    except ValueError:
+        pytest.fail("Failed to parse response as JSON")
+
+    # Randomly sample 250 items from the response body, or all items if there are less than 250
+    sample_size = min(250, len(response_body))
+    sample = random.sample(response_body, sample_size)
+
+    for item in sample:
+        # Assert that the item is a dictionary
+        assert isinstance(item, dict)
+
+        # Assert that the item has an 'id' key
+        assert 'userId' in item
+
+        # Assert that the id is not None
+        assert item['userId'] is not None
+
+        # Assert that the id is a number
+        assert isinstance(item['userId'], int) or isinstance(item['userId'], float)
+
+        # Assert that the id is above -1 and not equal to 0
+        assert item['userId'] > -1
+        assert item['userId'] != 0
+
+        # Assert that the item has a 'city' key
+        assert 'city' in item
+
+        # Assert that the city is not None
+        assert item['city'] is not None
+
+        # Assert that the city is a string
+        assert isinstance(item['city'], str)
+
+        # Assert that the item has a 'country' key
+        assert 'country' in item
+
+        # Assert that the country is not None
+        assert item['country'] is not None
+
+        # Assert that the country is a string
+        assert isinstance(item['country'], str)
