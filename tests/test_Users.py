@@ -123,3 +123,12 @@ def test_sample_items():
 
         # Assert that the country is a string
         assert isinstance(item['country'], str)
+
+        # Assert that the item has a 'job title' key
+        assert 'jobTitle' in item
+
+        # Assert that the country is not None
+        assert item['jobTitle'] is not None
+
+        # Assert that the country is a string
+        assert isinstance(item['jobTitle'], str)
