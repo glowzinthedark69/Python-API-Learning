@@ -94,7 +94,6 @@ def test_5_validate_user_object_delete():
     user_id = response_body[
         "userId"
     ]
-    print(user_id)
     # Request to delete the test user with the user id captured above
     delete_object = requests.delete(
         url + f"/{user_id}"
@@ -103,6 +102,7 @@ def test_5_validate_user_object_delete():
     updated_response_body = delete_object.json()
     assert delete_object.status_code == 200
     assert updated_response_body["message"] == "User has been successfully deleted."
+    print(updated_response_body)
     get_deleted_object = requests.get(url + f"{user_id}")
     assert get_deleted_object.status_code == 404
     deleted_response_body = get_deleted_object.json()

@@ -19,14 +19,14 @@ class Location(BaseModel):
         return value
 
 
-@app.post("/locations", response_model=Location, status_code=201)
+@app.post("/locations", response_model=Location, status_code=201, tags=["Locations"])
 def create_location(location: Location = Body(...)):
     location.id = random.randint(10000, 99999)  # generate a random 5-digit number
     locations.append(location)
     return location
 
 
-@app.get("/locations", response_model=List[Location])
+@app.get("/locations", response_model=List[Location], tags=["Locations"])
 def get_locations(
     city: Optional[str] = None,
     country: Optional[str] = None,
@@ -45,7 +45,7 @@ def get_locations(
     return filtered_locations
 
 
-@app.get("/locations/{location_id}", response_model=Location)
+@app.get("/locations/{location_id}", response_model=Location, tags=["Locations"])
 def get_location(location_id: int = Path(..., ge=0)):
     for location in locations:
         if location.id == location_id:
@@ -53,7 +53,7 @@ def get_location(location_id: int = Path(..., ge=0)):
     raise HTTPException(status_code=404, detail="Location not found")
 
 
-@app.put("/locations/{location_id}", response_model=Location)
+@app.put("/locations/{location_id}", response_model=Location, tags=["Locations"])
 def update_location(location_id: int, location: Location = Body(...)):
     for l in locations:
         if l.id == location_id:
@@ -63,7 +63,7 @@ def update_location(location_id: int, location: Location = Body(...)):
     raise HTTPException(status_code=404, detail="Location not found")
 
 
-@app.patch("/locations/{location_id}", response_model=Location)
+@app.patch("/locations/{location_id}", response_model=Location, tags=["Locations"])
 def patch_location(location_id: int, location: Location = Body(...)):
     for l in locations:
         if l.id == location_id:
@@ -75,7 +75,7 @@ def patch_location(location_id: int, location: Location = Body(...)):
     raise HTTPException(status_code=404, detail="Location not found")
 
 
-@app.delete("/locations/{location_id}")
+@app.delete("/locations/{location_id}", tags=["Locations"])
 def delete_location(location_id: int):
     for location in locations:
         if location.id == location_id:
