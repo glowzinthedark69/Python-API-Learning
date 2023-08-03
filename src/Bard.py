@@ -3,7 +3,7 @@ import os
 
 os.environ[
     "_BARD_API_KEY"
-] = "XQi8Bh3LN5phZU_Mx1ajZfofSy5xm16j17y0aTVyP1fC80-nYww1PMngf9spfaq0rqXzXw."
+] = "YAi8BgMmsiIkHrsFiuqJp73SDhq7y8HtMiH6-AZuxwPeWS9RI5IBvsDuC83hh-OcgBqmgw."
 
 var = Bard().get_answer("How do I test an API without any documentation")["content"]
 print(var)

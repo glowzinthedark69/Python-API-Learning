@@ -1,7 +1,9 @@
+import os
+
 import openai
 
 # Set the OpenAI API key
-openai.api_key = "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"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # The chat models are currently "gpt-3.5-turbo" or "text-davinci-002"
 model = "gpt-3.5-turbo"
