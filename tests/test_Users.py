@@ -73,6 +73,46 @@ def test_3_validate_object_updates():
     print(updated_response_body)
 
 
+def test_5_validate_user_object_delete():
+    url = "http://127.0.0.1:8000/users"
+    # POST operation for updating the new location
+    new_user = {
+        "userId": random.randint(
+            10000, 99999
+        ),  # Creates a new user with the following attributes
+        "name": "John DELETE",
+        "city": "Denver DELETE",
+        "country": "United States DELETE",
+        "jobTitle": "DELETED",
+    }
+    # Converts the response into JSON
+    post_object = requests.post(
+        url, json=new_user
+    )
+    # Assigns the id to the user_id variable for later use
+    response_body = post_object.json()
+    user_id = response_body[
+        "userId"
+    ]
+    # Request to delete the test user with the user id captured above
+    delete_object = requests.delete(
+        url + f"/{user_id}"
+    )
+    # Assertions to verify that the DELETE was successful
+    updated_response_body = delete_object.json()
+    assert delete_object.status_code == 200
+    assert updated_response_body["message"] == "User has been successfully deleted."
+    print(updated_response_body)
+    get_deleted_object = requests.get(url + f"{user_id}")
+    assert get_deleted_object.status_code == 404
+    deleted_response_body = get_deleted_object.json()
+    expected_response = {
+        "detail": "Not Found"
+    }
+    assert deleted_response_body == expected_response
+    print(deleted_response_body)
+
+
 def test_sample_items():
     try:
         response = requests.get("http://127.0.0.1:8000/users")

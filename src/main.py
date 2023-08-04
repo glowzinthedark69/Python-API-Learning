@@ -15,7 +15,7 @@ class User(BaseModel):
     jobTitle: Optional[str] = None
 
 
-@app.get("/users", response_model=List[User])
+@app.get("/users", response_model=List[User], tags=["Users"])
 def get_users(
     name: Optional[str] = None,
     user_id: Optional[int] = None,
@@ -54,7 +54,7 @@ def get_users(
     return filtered_users
 
 
-@app.get("/users/{user_id}", response_model=User)
+@app.get("/users/{user_id}", response_model=User, tags=["Users"])
 def get_user(user_id: int = Path(..., ge=0)):
     for user in users:
         if user.userId == user_id:
@@ -62,7 +62,7 @@ def get_user(user_id: int = Path(..., ge=0)):
     raise HTTPException(status_code=404, detail="User not found")
 
 
-@app.post("/users", response_model=User, status_code=201)
+@app.post("/users", response_model=User, status_code=201, tags=["Users"])
 def create_user(user: User = Body(...)):
     for u in users:
         if u.userId == user.userId:
@@ -74,7 +74,7 @@ def create_user(user: User = Body(...)):
     return user
 
 
-@app.patch("/users/{user_id}", response_model=User)
+@app.patch("/users/{user_id}", response_model=User, tags=["Users"])
 def patch_user(user_id: int, user: User = Body(...)):
     if user.userId != user_id:
         raise HTTPException(
@@ -91,7 +91,7 @@ def patch_user(user_id: int, user: User = Body(...)):
     raise HTTPException(status_code=404, detail="User not found")
 
 
-@app.put("/users/{user_id}", response_model=User)
+@app.put("/users/{user_id}", response_model=User, tags=["Users"])
 def update_user(user_id: int, user: User = Body(...)):
     for u in users:
         if u.userId == user_id:
@@ -103,7 +103,7 @@ def update_user(user_id: int, user: User = Body(...)):
     raise HTTPException(status_code=404, detail="User not found")
 
 
-@app.delete("/users/{user_id}")
+@app.delete("/users/{user_id}", tags=["Users"])
 def delete_user(user_id: int):
     for user in users:
         if user.userId == user_id:
